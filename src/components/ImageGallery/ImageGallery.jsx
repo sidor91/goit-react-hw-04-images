@@ -1,52 +1,43 @@
-import { Component } from 'react';
+import { useState } from 'react';
 import PropTypes from 'prop-types';
 import Modal from '../Modal';
 import css from './ImageGallery.module.css';
 import GalleryItem from '../GalleryItem';
 
-class ImageGallery extends Component {
-  state = {
-    showModal: false,
-    largeImageURL: '',
+
+const ImageGallery = ({ searchResult }) => {
+  const [modal, showModal] = useState(false);
+  const [largeImageURL, getLargeImageURL] = useState('');
+
+  const closeModal = () => {
+    showModal(false);
   };
 
-  closeModal = () => {
-    this.setState({ showModal: false });
-  };
-
-  clickHandler = e => {
+  const clickHandler = e => {
     if (e.target === e.currentTarget) {
       return;
     }
-    const imageURL = e.target.getAttribute('data-url');
-    this.setState({ largeImageURL: imageURL });
-    this.setState(prevState => ({ showModal: !prevState.showModal }));
+    getLargeImageURL(e.target.getAttribute('data-url'));
+    showModal(!modal);
   };
 
-  render() {
-    const { showModal, largeImageURL, error } =
-        this.state;
-      const { searchResult } = this.props;
-    return (
-      <>
-        {error && <h1>{error.message}</h1>}
-        <ul className={css.imageGallery} onClick={this.clickHandler}>
-          {searchResult.map(({ id, webformatURL, tags, largeImageURL }) => (
-            <GalleryItem
-              key={id}
-              url={webformatURL}
-              title={tags}
-              largeImage={largeImageURL}
-            />
-          ))}
-        </ul>
-        {showModal && (
-          <Modal imageURL={largeImageURL} onClick={this.closeModal} />
-        )}
-      </>
-    );
-  }
-}
+  return (
+    <>
+      <ul className={css.imageGallery} onClick={clickHandler}>
+        {searchResult.map(({ id, webformatURL, tags, largeImageURL }) => (
+          <GalleryItem
+            key={id}
+            url={webformatURL}
+            title={tags}
+            largeImage={largeImageURL}
+          />
+        ))}
+      </ul>
+      {modal && <Modal imageURL={largeImageURL} onClick={closeModal} />}
+    </>
+  );
+};
+
 export default ImageGallery;
 
 ImageGallery.propTypes = {
