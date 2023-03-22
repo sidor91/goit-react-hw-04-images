@@ -7,7 +7,6 @@ import { fetchImages } from '../services/images-api';
 import Button from './Button';
 import Loader from './Loader';
 
-
 export const App = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [page, setPage] = useState(1);
@@ -30,7 +29,9 @@ export const App = () => {
           }
           setSearchResult([...searchResult, ...result.hits]);
         })
-        .catch(error => setError(error))
+        .catch(error => {
+          setError(error);
+        })
         .finally(() => {
           setIsLoading(false);
         });
@@ -40,9 +41,9 @@ export const App = () => {
   }, [searchQuery, page]);
 
   const onLoadMoreClick = () => {
-      setPage(page + 1);
+    setPage(page + 1);
   };
-  
+
   const handleFormSubmit = searchQuery => {
     setSearchQuery(searchQuery);
     setPage(1);
@@ -57,6 +58,7 @@ export const App = () => {
       {searchResult.length > 0 && !isLoading && (
         <Button onClick={onLoadMoreClick} />
       )}
+      {error !== null && <h1>{error.message}</h1>}
       <ToastContainer theme="dark" />
     </div>
   );
