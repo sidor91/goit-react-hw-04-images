@@ -1,4 +1,4 @@
-import { Component } from 'react';
+import { useState, useEffect } from 'react';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Searchbar from './Searchbar';
@@ -7,73 +7,57 @@ import { fetchImages } from '../services/images-api';
 import Button from './Button';
 import Loader from './Loader';
 
-export class App extends Component {
-  state = {
-    searchQuery: '',
-    page: 1,
-    searchResult: [],
-    isLoading: false,
-    error: null,
-  };
 
-  componentDidUpdate(prevProps, prevState) {
-    const { searchQuery, page } = this.state;
-    if (prevState.searchQuery !== searchQuery) {
-      this.fetchHandler();
-    }
-    if (
-      prevState.page !== page &&
-      prevState.searchQuery === this.state.searchQuery
-    ) {
-      this.fetchHandler();
-    }
-  }
+export const App = () => {
+  const [searchQuery, setSearchQuery] = useState('');
+  const [page, setPage] = useState(1);
+  const [searchResult, setSearchResult] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
 
-  handleFormSubmit = searchQuery => {
-    this.setState({ searchQuery, page: 1, searchResult: [] });
-  };
-
-  toggleLoader = () => {
-    this.setState(prevState => ({ isLoading: !prevState.isLoading }));
-  }
-
-  fetchHandler = () => {
-    const { searchQuery, page } = this.state;
-    this.toggleLoader();
+  useEffect(() => {
+    const fetchHandler = () => {
+      setIsLoading(true);
       fetchImages(searchQuery, page)
         .then(result => {
           if (result.hits.length === 0) {
-            this.setState({ searchResult: [], page: 1 });
+            setSearchResult([]);
+            setPage(1);
             return toast(
               `There are no images by search request "${searchQuery}"`,
               { theme: 'dark' }
             );
           }
-          this.setState(prevState => ({
-            searchResult: [...prevState.searchResult, ...result.hits],
-          }));
+          setSearchResult([...searchResult, ...result.hits]);
         })
-        .catch(error => this.setState({ error })).finally(() => {this.toggleLoader()})
+        .catch(error => setError(error))
+        .finally(() => {
+          setIsLoading(false);
+        });
+    };
+
+    searchQuery !== '' && fetchHandler();
+  }, [searchQuery, page]);
+
+  const onLoadMoreClick = () => {
+      setPage(page + 1);
+  };
+  
+  const handleFormSubmit = searchQuery => {
+    setSearchQuery(searchQuery);
+    setPage(1);
+    setSearchResult([]);
   };
 
-  onLoadMoreClick = () => {
-    this.setState(prevState => ({ page: prevState.page + 1 }));
-  };
-
-  render() {
-    const { isLoading, searchResult } = this.state;
-    return (
-      <div className="app">
-        <Searchbar onSubmit={this.handleFormSubmit} />
-        {searchResult.length > 0 && (
-          <ImageGallery searchResult={searchResult} />
-        )}
-        {isLoading && <Loader />}
-        {searchResult.length > 0 && !isLoading && (
-          <Button onClick={this.onLoadMoreClick} />
-        )}
-        <ToastContainer theme="dark" />
-      </div>
-    );
-  }
-}
+  return (
+    <div className="app">
+      <Searchbar onSubmit={handleFormSubmit} />
+      {searchResult.length > 0 && <ImageGallery searchResult={searchResult} />}
+      {isLoading && <Loader />}
+      {searchResult.length > 0 && !isLoading && (
+        <Button onClick={onLoadMoreClick} />
+      )}
+      <ToastContainer theme="dark" />
+    </div>
+  );
+};
