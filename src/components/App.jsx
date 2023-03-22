@@ -27,7 +27,7 @@ export const App = () => {
               { theme: 'dark' }
             );
           }
-          setSearchResult([...searchResult, ...result.hits]);
+          setSearchResult(searchResult => [...searchResult, ...result.hits]);
         })
         .catch(error => {
           setError(error);
