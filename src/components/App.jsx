@@ -37,7 +37,7 @@ export const App = () => {
           setIsLoading(false);
         });
     };
-
+    
     searchQuery !== '' && fetchHandler();
   }, [searchQuery, page]);
 
@@ -46,6 +46,9 @@ export const App = () => {
   };
 
   const handleFormSubmit = searchQuery => {
+    if (searchQuery === '') {
+      return toast('Please type a search query')
+    }
     setSearchQuery(searchQuery);
     setPage(1);
     setSearchResult([]);
