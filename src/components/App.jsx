@@ -28,7 +28,10 @@ export const App = () => {
               { theme: 'dark' }
             );
           }
-          setSearchResult(searchResult => [...searchResult, ...result.hits]);
+          setSearchResult(prevSearchResult => [
+            ...prevSearchResult,
+            ...result.hits,
+          ]);
         })
         .catch(error => {
           setError(error);
