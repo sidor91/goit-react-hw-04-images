@@ -37,12 +37,12 @@ export const App = () => {
           setIsLoading(false);
         });
     };
-    
+
     searchQuery !== '' && fetchHandler();
   }, [searchQuery, page]);
 
   const onLoadMoreClick = () => {
-    setPage(page + 1);
+    setPage(prevPage => prevPage + 1);
   };
 
   const handleFormSubmit = searchQuery => {
