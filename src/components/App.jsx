@@ -14,6 +14,7 @@ export const App = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
 
+  
   useEffect(() => {
     const fetchHandler = () => {
       setIsLoading(true);
